@@ -55,6 +55,27 @@ export default class FlowChart {
         });
   }
 
+  contextMenuClick(e, obj) {
+    // e.diagram.commit(function(d) {
+    //   // get the context menu that holds the button that was clicked
+    //   var contextmenu = obj.part;
+    //   // get the node data to which the Node is data bound
+    //   var nodedata = contextmenu.data;
+    //   // compute the next color for the node
+    //   var newcolor = "lightblue";
+    //   switch (nodedata.color) {
+    //     case "lightblue": newcolor = "lightgreen"; break;
+    //     case "lightgreen": newcolor = "lightyellow"; break;
+    //     case "lightyellow": newcolor = "orange"; break;
+    //     case "orange": newcolor = "lightblue"; break;
+    //   }
+    //   // modify the node data
+    //   // this evaluates data Bindings and records changes in the UndoManager
+    //   d.model.set(nodedata, "color", newcolor);
+    // }, "changed color");
+    console.log('clicked')
+  }
+
   defineLinkTemplate() {
     // replace the default Link template in the linkTemplateMap
     this.myDiagram.linkTemplate =
@@ -122,7 +143,20 @@ export default class FlowChart {
               wrap: go.TextBlock.WrapFit,
               editable: true
             },
-            new go.Binding("text").makeTwoWay())
+            new go.Binding("text").makeTwoWay()),
+            {
+              contextMenu:     // define a context menu for each node
+                $("ContextMenu",  // that has one button
+                  $("ContextMenuButton",
+                    {
+                      "ButtonBorder.fill": "white",
+                      "_buttonFillOver": "skyblue"
+                    },
+                    $(go.TextBlock, "Change Color"),
+                    { click: this.contextMenuClick })
+                  // more ContextMenuButtons would go here
+                )  // end Adornment
+            }
         ),
         // four named ports, one on each side:
         makePort("T", go.Spot.Top, go.Spot.TopSide, false, true),

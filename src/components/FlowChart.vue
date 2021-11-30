@@ -4,18 +4,16 @@
       <div id="myPaletteDiv" style="width: 100px; margin-right: 2px; background-color: #282c34;"></div>
       <div id="myDiagramDiv" style="flex-grow: 1; height: 750px; background-color: #282c34;"></div>
       <ul id="contextMenu" class="menu">
-        <li id="copy" class="menu-item" @click="cxcommand('copy')">Copy Task</li>
-        <li id="copy" class="menu-item" onclick="cxcommand(event)">Copy</li>
-        <li id="paste" class="menu-item" onclick="cxcommand(event)">Paste</li>
-        <li id="delete" class="menu-item" onclick="cxcommand(event)">Delete</li>
-        <li id="color" class="menu-item">Color
+        <li id="color" class="menu-item">Configuration
           <ul class="menu">
-            <li class="menu-item" style="background-color: #f38181;" onclick="cxcommand(event, 'color')">Red</li>
-            <li class="menu-item" style="background-color: #eaffd0;" onclick="cxcommand(event, 'color')">Green</li>
-            <li class="menu-item" style="background-color: #95e1d3;" onclick="cxcommand(event, 'color')">Blue</li>
-            <li class="menu-item" style="background-color: #fce38a;" onclick="cxcommand(event, 'color')">Yellow</li>
+            <li class="menu-item" onclick="cxcommand(event, 'color')">Edit Detail</li>
+            <li class="menu-item" onclick="cxcommand(event, 'color')">Configure Task</li>
+            <li class="menu-item" onclick="cxcommand(event, 'color')">Configure Rules</li>
+            <li class="menu-item" onclick="cxcommand(event, 'color')">Display Settings</li>
           </ul>
         </li>
+        <li id="copy" class="menu-item" @click="cxcommand('copy')">Copy Task</li>
+        <li id="delete" class="menu-item" @click="cxcommand('delete')">Delete Task</li>
       </ul>
     </div>
     <p/>
@@ -61,8 +59,13 @@ const flowChart = new FlowChart()
 
 export default {
   name: 'FlowChart',
+  data () {
+    return {
+      myDiagram: null
+    }
+  },
   mounted () {
-    flowChart.init('myDiagramDiv', 'myPaletteDiv', this.showContextMenu)
+    this.myDiagram = flowChart.init('myDiagramDiv', 'myPaletteDiv', this.showContextMenu)
     flowChart.load(document.getElementById("mySavedModel").value);  // load an initial diagram from some JSON text
   },
   methods: {
@@ -72,15 +75,15 @@ export default {
         case "copy":
           alert('copy')
           break;
-        case "copy":
-          alert('copy')
+        case "delete":
+          alert('delete')
           break;
         case "color": {
           // var color = window.getComputedStyle(event.target)['background-color'];
           // changeColor(diagram, color); break;
         }
       }
-      diagram.currentTool.stopTool();
+      this.myDiagram.currentTool.stopTool();
     },
 
     showContextMenu(obj, diagram, tool) {
@@ -94,7 +97,8 @@ export default {
           elt.style.display = "block";
           hasMenuItem = true;
         } else {
-          elt.style.display = "none";
+          if (elt && elt.style)
+            elt.style.display = "none";
         }
       }
       maybeShowItem(document.getElementById("copy"), cmd.canCutSelection());

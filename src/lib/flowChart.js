@@ -11,6 +11,8 @@ export default class FlowChart {
     this.defineNodeTemplates(showContextMenuHandler)
     this.defineLinkTemplate()
     this.initPalette(paletteDivId);
+
+    return this.myDiagram
   }
 
   initDiagram (diagramDivId) {
@@ -259,7 +261,8 @@ export default class FlowChart {
   }
 
   hideContextMenu() {
-    this.cxElement.classList.remove("show-menu");
+    const cxElement = document.getElementById("contextMenu");
+    cxElement.classList.remove("show-menu");
     // Optional: Use a `window` click listener with event capture to
     //           remove the context menu if the user clicks elsewhere on the page
     window.removeEventListener("click", this.hideCX, true);
@@ -304,8 +307,6 @@ function animateFadeDown(e) {
   animation.add(diagram, 'opacity', 0, 1);
   animation.start();
 }
-
-
 
 // Define a function for creating a "port" that is normally transparent.
 // The "name" is used as the GraphObject.portId,

@@ -6,9 +6,9 @@ export default class FlowChart {
   constructor() {
   }
 
-  init(diagramDivId, paletteDivId) {
+  init(diagramDivId, paletteDivId, showContextMenuHandler) {
     this.initDiagram(diagramDivId)
-    this.defineNodeTemplates()
+    this.defineNodeTemplates(showContextMenuHandler)
     this.defineLinkTemplate()
     this.initPalette(paletteDivId);
   }
@@ -76,6 +76,8 @@ export default class FlowChart {
     console.log('clicked')
   }
 
+  
+
   defineLinkTemplate() {
     // replace the default Link template in the linkTemplateMap
     this.myDiagram.linkTemplate =
@@ -126,13 +128,23 @@ export default class FlowChart {
     this.myDiagram.model = go.Model.fromJson(modelJson)
   }
 
-  defineNodeTemplates() {
+  defineNodeTemplates(showContextMenuHandler) {
+    // This is the actual HTML context menu:
+    this.cxElement = document.getElementById("contextMenu");
+
+    // an HTMLInfo object is needed to invoke the code to set up the HTML cxElement
+    var myContextMenu = $(go.HTMLInfo, {
+      show: showContextMenuHandler,
+      hide: this.hideContextMenu
+    });
+
     // define the Node templates for regular nodes
   
     this.myDiagram.nodeTemplateMap.add("",  // the default category
       $(go.Node, "Table", nodeStyle(),
         // the main object is a Panel that surrounds a TextBlock with a rectangular Shape
         $(go.Panel, "Auto",
+        
           $(go.Shape, "Rectangle",
             { fill: "#282c34", stroke: "#00A9C9", strokeWidth: 3.5 },
             new go.Binding("figure", "figure")),
@@ -144,19 +156,7 @@ export default class FlowChart {
               editable: true
             },
             new go.Binding("text").makeTwoWay()),
-            {
-              contextMenu:     // define a context menu for each node
-                $("ContextMenu",  // that has one button
-                  $("ContextMenuButton",
-                    {
-                      "ButtonBorder.fill": "white",
-                      "_buttonFillOver": "skyblue"
-                    },
-                    $(go.TextBlock, "Change Color"),
-                    { click: this.contextMenuClick })
-                  // more ContextMenuButtons would go here
-                )  // end Adornment
-            }
+            { contextMenu: myContextMenu },
         ),
         // four named ports, one on each side:
         makePort("T", go.Spot.Top, go.Spot.TopSide, false, true),
@@ -258,6 +258,19 @@ export default class FlowChart {
     return result;
   }
 
+  hideContextMenu() {
+    this.cxElement.classList.remove("show-menu");
+    // Optional: Use a `window` click listener with event capture to
+    //           remove the context menu if the user clicks elsewhere on the page
+    window.removeEventListener("click", this.hideCX, true);
+  }
+
+  hideCX() {
+    if (this.myDiagram.currentTool instanceof go.ContextMenuTool) {
+      this.myDiagram.currentTool.doCancel();
+    }
+  }
+
   // print the diagram by opening a new window holding SVG images of the diagram contents for each page
   printDiagram() {
     var svgWindow = window.open();
@@ -291,6 +304,8 @@ function animateFadeDown(e) {
   animation.add(diagram, 'opacity', 0, 1);
   animation.start();
 }
+
+
 
 // Define a function for creating a "port" that is normally transparent.
 // The "name" is used as the GraphObject.portId,
